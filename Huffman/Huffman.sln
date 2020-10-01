@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Huffman", "Huffman\Huffman.csproj", "{DC0AB46B-02A2-4207-8F85-CC626D869F7C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "TestConsole\TestConsole.csproj", "{B8460D5E-E917-4707-9550-A6684FF39FBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API-Huffman", "API-Huffman\API-Huffman.csproj", "{C95EA7C5-5443-4D85-8954-D29AE9ACA2A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{DC0AB46B-02A2-4207-8F85-CC626D869F7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC0AB46B-02A2-4207-8F85-CC626D869F7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC0AB46B-02A2-4207-8F85-CC626D869F7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8460D5E-E917-4707-9550-A6684FF39FBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8460D5E-E917-4707-9550-A6684FF39FBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8460D5E-E917-4707-9550-A6684FF39FBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8460D5E-E917-4707-9550-A6684FF39FBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C95EA7C5-5443-4D85-8954-D29AE9ACA2A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C95EA7C5-5443-4D85-8954-D29AE9ACA2A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C95EA7C5-5443-4D85-8954-D29AE9ACA2A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C95EA7C5-5443-4D85-8954-D29AE9ACA2A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
