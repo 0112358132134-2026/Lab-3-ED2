@@ -62,6 +62,8 @@ namespace Huffman
             //Ejemplo agregar en árbol de huff
             HuffTree ejemplo = new HuffTree();
             ejemplo.Insert(queue, ejemplo);
+            //Ejemplo para imprimir en pre
+            ejemplo.AddBinary(ejemplo.rootOriginal);
         }
     }
 }

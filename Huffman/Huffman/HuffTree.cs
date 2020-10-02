@@ -364,6 +364,30 @@ namespace Huffman
             }
         }
 
+        public void AddBinary(NodeHuffTree paint)
+        {
+            if (paint != null)
+            {
+                Console.WriteLine(paint.character);
+                AddBinary(paint.nodeLeft);
+                AddBinary(paint.nodeRight);
+            }
+        }
+
+        //public void AddBinary(NodeHuffTree paint)
+        //{
+        //    if (paint != null)
+        //    {
+        //        if (paint.probability != 1)
+        //        {
+        //            Console.WriteLine(paint.character);
+        //            AddBinary(paint.nodeLeft);
+        //            AddBinary(paint.nodeRight);
+        //        }
+
+        //    }
+        //}
+
         public object Clone()
         {
             return this.MemberwiseClone();
@@ -371,12 +395,9 @@ namespace Huffman
 
         public class NodeHuffTree
         {
-            public int height;
-            //NOTA: Puede reempazarse por T:
             public double probability;
             public string character;
-            public string binary;
-            //
+            public string binary;            
             public NodeHuffTree nodeLeft, nodeRight, nodeFather;
         }
     }
