@@ -1,12 +1,18 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using Huffman;
 namespace TestConsole
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            HuffmanClass prueba = new HuffmanClass();
+            List<NodeTable> escrito = prueba.GenerateTable("AABCABBP");
+            //COLA
+            HuffQueue<NodeTable> hola = new HuffQueue<NodeTable>();
+            prueba.AddToQueue(escrito, hola);
+            Console.ReadKey();
         }
     }
 }
