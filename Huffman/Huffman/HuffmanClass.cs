@@ -9,7 +9,7 @@ namespace Huffman
     {
         public List<NodeTable> GenerateTable(string text)
         {
-            //Se agregan los caracteres y sus frecuencias
+            //Se agregan los caracteres y sus frecuencias:
             List<NodeTable> result = new List<NodeTable>();
             for (int i = 0; i < text.Length; i++)
             {
@@ -59,6 +59,9 @@ namespace Huffman
             {
                 queue.Insert(values[i], values[i].probability);
             }
+            //Ejemplo agregar en árbol de huff
+            HuffTree ejemplo = new HuffTree();
+            ejemplo.Insert(queue, ejemplo);
         }
     }
 }

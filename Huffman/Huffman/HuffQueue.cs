@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Huffman
 {
     public class HuffQueue <T> where T : IComparable
     {
+        //Debe tener una lista que servirá para reordenar luego de eliminar:
+        public List<string> listAux = new List<string>();
         public NodoCola Root;
         public int Count, Nodes;
         public HuffQueue()
@@ -27,6 +30,10 @@ namespace Huffman
                 Root = InsertCP(nuevo, Root, null);
                 Nodes++;
             }
+            //Se inserta el valor que se insertó, a la listAux
+            object aux = _data;
+            NodeTable add = (NodeTable)aux;
+            listAux.Add(add.character);
         }
         public NodoCola InsertCP(NodoCola _new, NodoCola _root, NodoCola _nodoFather)
         {
@@ -121,6 +128,11 @@ namespace Huffman
         }
         public void DeleteRoot(HuffQueue<T> _root)
         {
+            //Se elimina primero de la lista
+            object deleteList = _root.ReturnRoot();
+            NodeTable delete = (NodeTable)deleteList;
+            listAux.Remove(delete.character);
+            //
             if (Nodes > 0)
             {
                 HuffQueue<T> Aux = (HuffQueue<T>)_root.Clone();
@@ -148,13 +160,13 @@ namespace Huffman
                 for (int i = Fathers.Count - 1; i >= 0; i--)
                 {
                     Invert.Add(Fathers[i]);
-                }
-                DeleteRoot(Invert, _root.Root);
+                }       
+                DeleteRootF(Invert, _root.Root);                
                 Order(_root.Root);
                 Nodes--;
             }
         }
-        public NodoCola DeleteRoot(List<int> _Sons, NodoCola _root)
+        public NodoCola DeleteRootF(List<int> _Sons, NodoCola _root)
         {
             while ((_root.NodoLeft != null) || (_root.NodoRight != null))
             {
@@ -162,11 +174,11 @@ namespace Huffman
                 _Sons.Remove(Pos0);
                 if (Pos0 % 2 != 0)
                 {
-                    return DeleteRoot(_Sons, _root.NodoRight);
+                    return DeleteRootF(_Sons, _root.NodoRight);
                 }
                 else
                 {
-                    return DeleteRoot(_Sons, _root.NodoLeft);
+                    return DeleteRootF(_Sons, _root.NodoLeft);
                 }
             }
             if ((_root.NodoLeft == null) && (_root.NodoRight == null))
@@ -212,28 +224,115 @@ namespace Huffman
                         }
                         else if (_root.NodoLeft.Priority == _root.NodoRight.Priority)
                         {
-                            if (_root.NodoLeft.Data.CompareTo(_root.NodoRight.Data) == 1)
+                            //Primero se valida si los valores de los hijos son menores o iguales al del padre:
+                            //Si son menores, se debe validar quién de los 2 hijo debe subir al padre:
+                            if (_root.NodoLeft.Priority < _root.Priority)
                             {
-                                Change(_root, _root.NodoRight);
-                                Order(_root.NodoRight);
+                                //Se convierte la data del _root.NodoLeft en NodeTable y la data del _root.NodoRight en Node Table
+                                object aux1 = _root.NodoLeft.Data;
+                                NodeTable auxiliar1 = (NodeTable)aux1;
+                                object aux2 = _root.NodoRight.Data;
+                                NodeTable auxiliar2 = (NodeTable)aux2;
+                                //Ya que existen, se van a buscar a la listAux y se valida si va antes o después:
+                                int posLeft = 0;
+                                int posRight = 0;
+                                for (int i = 0; i < listAux.Count; i++)
+                                {
+                                    if (listAux[i] == auxiliar1.character)
+                                    {
+                                        posLeft = i;
+                                    }
+                                    if (listAux[i] == auxiliar2.character)
+                                    {
+                                        posRight = i;
+                                    }
+                                }
+                                //Si el character del _root.NodoLeft se insertó antes, entonces se sube el izquierdo:
+                                if (posLeft < posRight)
+                                {
+                                    Change(_root, _root.NodoLeft);
+                                    Order(_root.NodoLeft);
+                                }
+                                else if (posRight < posLeft)
+                                {
+                                    Change(_root, _root.NodoRight);
+                                    Order(_root.NodoRight);
+                                }
                             }
-                            else if (_root.NodoLeft.Data.CompareTo(_root.NodoRight.Data) == -1)
+                            //Si son iguales
+                            else if (_root.NodoLeft.Priority == _root.Priority)
                             {
-                                Change(_root, _root.NodoLeft);
-                                Order(_root.NodoLeft);
-                            }
-                            else if (_root.NodoLeft.Data.CompareTo(_root.NodoRight.Data) == 0)
-                            {
-                                Change(_root, _root.NodoLeft);
-                                Order(_root.NodoLeft);
+                                //Validar si la ráiz se insertó primero:
+                                //Se convierte la data del _root.NodoLeft en NodeTable, la data del _root.NodoRight en Node Table y la data del _root en Nodo Table:
+                                object aux1 = _root.NodoLeft.Data;
+                                NodeTable auxiliar1 = (NodeTable)aux1;
+                                object aux2 = _root.NodoRight.Data;
+                                NodeTable auxiliar2 = (NodeTable)aux2;
+                                object aux3 = _root.Data;
+                                NodeTable auxiliar3 = (NodeTable)aux3;
+                                //Ya que existen, se van a buscar a la listAux y se valida:
+                                int posLeft = 0;
+                                int posRight = 0;
+                                int postRoot = 0;
+                                for (int i = 0; i < listAux.Count; i++)
+                                {
+                                    if (listAux[i] == auxiliar1.character)
+                                    {
+                                        posLeft = i;
+                                    }
+                                    if (listAux[i] == auxiliar2.character)
+                                    {
+                                        posRight = i;
+                                    }
+                                    if (listAux[i] == auxiliar3.character)
+                                    {
+                                        postRoot = i;
+                                    }
+                                }
+                                //Si la raíz no se insertó antes que los dos hijos, no se hace nada:
+                                if ((postRoot < posLeft) && (postRoot < posRight))
+                                {
+                                }
+                                //
+                                else if (posLeft < posRight)
+                                {
+                                    Change(_root, _root.NodoLeft);
+                                    Order(_root.NodoLeft);
+                                }
+                                else if (posRight < posLeft)
+                                {
+                                    Change(_root, _root.NodoRight);
+                                    Order(_root.NodoRight);
+                                }
                             }
                         }
                     }
+                    //LISTO
                     else if ((_root.Priority >= _root.NodoLeft.Priority) && (_root.Priority < _root.NodoRight.Priority))
                     {
                         if (_root.Priority == _root.NodoLeft.Priority)
                         {
-                            if (_root.Data.CompareTo(_root.NodoLeft.Data) == 1)
+                            //Se convierte la data del _root en NodeTable y la data del _root.NodoLeft en Node Table
+                            object aux1 = _root.Data;
+                            NodeTable auxiliar1 = (NodeTable)aux1;
+                            object aux2 = _root.NodoLeft.Data;
+                            NodeTable auxiliar2 = (NodeTable)aux2;
+                            //Ya que existen, se van a buscar a la listAux y se valida si va antes o después:
+                            int posRoot = 0;
+                            int posLeft = 0; 
+                            for (int i = 0; i < listAux.Count; i++)
+                            {
+                                if (listAux[i] == auxiliar1.character)
+                                {
+                                    posRoot = i;
+                                }
+                                if (listAux[i] == auxiliar2.character)
+                                {
+                                    posLeft = i;
+                                }
+                            }
+                            //Si el character del _root.NodoLeft se insertó antes, entonces se cambia de lugar:
+                            if (posLeft < posRoot)
                             {
                                 Change(_root, _root.NodoLeft);
                                 Order(_root.NodoLeft);
@@ -245,11 +344,32 @@ namespace Huffman
                             Order(_root.NodoLeft);
                         }
                     }
+                    //LISTO
                     else if ((_root.Priority < _root.NodoLeft.Priority) && (_root.Priority >= _root.NodoRight.Priority))
                     {
                         if (_root.Priority == _root.NodoRight.Priority)
                         {
-                            if (_root.Data.CompareTo(_root.NodoRight.Data) == 1)
+                            //Se convierte la data del _root en NodeTable y la data del _root.NodoRight en Node Table
+                            object aux1 = _root.Data;
+                            NodeTable auxiliar1 = (NodeTable)aux1;
+                            object aux2 = _root.NodoRight.Data;
+                            NodeTable auxiliar2 = (NodeTable)aux2;
+                            //Ya que existen, se van a buscar a la listAux y se valida si va antes o después:
+                            int posRoot = 0;
+                            int posRight = 0;
+                            for (int i = 0; i < listAux.Count; i++)
+                            {
+                                if (listAux[i] == auxiliar1.character)
+                                {
+                                    posRoot = i;
+                                }
+                                if (listAux[i] == auxiliar2.character)
+                                {
+                                    posRight = i;
+                                }
+                            }
+                            //Si el character del _root.NodoRight se insertó antes, entonces se cambia de lugar:
+                            if (posRight < posRoot)
                             {
                                 Change(_root, _root.NodoRight);
                                 Order(_root.NodoRight);
@@ -262,17 +382,38 @@ namespace Huffman
                         }
                     }
                 }
+                //LISTO
                 else if ((_root.NodoRight != null && _root.NodoLeft == null))
                 {
                     if (_root.Priority >= _root.NodoRight.Priority)
                     {
                         if (_root.Priority == _root.NodoRight.Priority)
                         {
-                            if (_root.Data.CompareTo(_root.NodoRight.Data) == 1)
+                            //Se debe validar quién se insertó primero
+                            //Se convierte la data del _root en NodeTable y la data del _root.NodoRight en Node Table
+                            object aux1 = _root.Data;
+                            NodeTable auxiliar1 = (NodeTable)aux1;
+                            object aux2 = _root.NodoRight.Data;
+                            NodeTable auxiliar2 = (NodeTable)aux2;
+                            //Ya que existen, se van a buscar a la listAux y se valida si va antes o después:
+                            int posRoot = 0;
+                            int posRight = 0;
+                            for (int i = 0; i < listAux.Count; i++)
+                            {
+                                if (listAux[i] == auxiliar1.character)
+                                {
+                                    posRoot = i;
+                                }
+                                if (listAux[i] == auxiliar2.character)
+                                {
+                                    posRight = i;
+                                }
+                            }
+                            if (posRight < posRoot)
                             {
                                 Change(_root, _root.NodoRight);
                                 Order(_root.NodoRight);
-                            }
+                            }                                                       
                         }
                         else
                         {
@@ -281,13 +422,34 @@ namespace Huffman
                         }
                     }
                 }
+                //LISTO
                 else if ((_root.NodoLeft != null && _root.NodoRight == null))
                 {
                     if (_root.Priority >= _root.NodoLeft.Priority)
                     {
                         if (_root.Priority == _root.NodoLeft.Priority)
                         {
-                            if (_root.Data.CompareTo(_root.NodoLeft.Data) == 1)
+                            //Se debe validar quién se insertó primero
+                            //Se convierte la data del _root en NodeTable y la data del _root.NodoLeft en Node Table
+                            object aux1 = _root.Data;
+                            NodeTable auxiliar1 = (NodeTable)aux1;
+                            object aux2 = _root.NodoLeft.Data;
+                            NodeTable auxiliar2 = (NodeTable)aux2;
+                            //Ya que existen, se van a buscar a la listAux y se valida si va antes o después:
+                            int posRoot = 0;
+                            int posLeft = 0;
+                            for (int i = 0; i < listAux.Count; i++)
+                            {
+                                if (listAux[i] == auxiliar1.character)
+                                {
+                                    posRoot = i;
+                                }
+                                if (listAux[i] == auxiliar2.character)
+                                {
+                                    posLeft = i;
+                                }
+                            }
+                            if (posLeft < posRoot)
                             {
                                 Change(_root, _root.NodoLeft);
                                 Order(_root.NodoLeft);
@@ -326,8 +488,12 @@ namespace Huffman
                 number = _root.Height;
             }
             return number;
+        }        
+        public object ReturnRoot()
+        {
+            return Root.Data;
         }
-
+        
         public object Clone()
         {
             return this.MemberwiseClone();

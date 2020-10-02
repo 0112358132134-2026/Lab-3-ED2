@@ -8,7 +8,7 @@ namespace TestConsole
         static void Main(string[] args)
         {
             HuffmanClass prueba = new HuffmanClass();
-            List<NodeTable> escrito = prueba.GenerateTable("AABCABBP");
+            List<NodeTable> escrito = prueba.GenerateTable("ddabdccedchafbadgdcgabgccddbcdgg");
             //COLA
             HuffQueue<NodeTable> hola = new HuffQueue<NodeTable>();
             prueba.AddToQueue(escrito, hola);
