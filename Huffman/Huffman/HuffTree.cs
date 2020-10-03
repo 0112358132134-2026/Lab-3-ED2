@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace Huffman
@@ -364,35 +365,27 @@ namespace Huffman
             }
         }
 
-        public void AddBinary(NodeHuffTree paint, string listbinary)
+        public void AddBinary(NodeHuffTree paint, int side, string afterBinary)
         {
             if (paint != null)
             {
-                Console.WriteLine(paint.character);
-                
-                if (paint.probability == 1)
+                if (paint.probability != 1)
                 {
-                    paint.nodeLeft.binary += "0";
-                    paint.nodeRight.binary += "1";
-                    Console.WriteLine("Lista del izquierdo: "+paint.nodeLeft.binary+ " Lista del derecho: " + paint.nodeRight.binary);
-                    AddBinary(paint.nodeLeft, paint.binary);
-
-                }
-                else
-                {
-                    if (paint.nodeLeft != null)
+                    //Si es lado izquierdo
+                    if (side == 1)
                     {
-                        paint.binary += listbinary + "0";
-                        Console.WriteLine(paint.binary);
-                        AddBinary(paint.nodeLeft, paint.binary);
+                        paint.binary += afterBinary + "0";
                     }
-                    else if (paint.nodeLeft == null & paint.nodeRight!=null)
+                    //Si es lado derecho
+                    else if (side==2)
                     {
-                        AddBinary(paint.nodeRight, paint.binary);
+                        paint.binary += afterBinary + "1";
                     }
-                }
-                //AddBinary(paint.nodeLeft,paint.binary);
-                //AddBinary(paint.nodeRight);
+                    Console.WriteLine(paint.character);
+                    Console.WriteLine(paint.binary);
+                }   
+                AddBinary(paint.nodeLeft, 1 , paint.binary);
+                AddBinary(paint.nodeRight, 2, paint.binary);
             }
         }
 
