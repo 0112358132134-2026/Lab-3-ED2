@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Xml;
@@ -113,14 +114,16 @@ namespace Huffman
             bool OK = false;
             while (!OK)
             {
+                
                 if (auxiliar.Length >= 8)
                 {
-                    result.Add(auxiliar.Substring(0,8));
+
+                    result.Add(auxiliar.Substring(0, 8));
                     //Se eliminan:
                     string remove = "";
                     for (int i = 0; i < auxiliar.Length; i++)
                     {
-                        if (i >= 7)
+                        if (i >= 8)
                         {
                             remove += auxiliar[i].ToString();
                         }
