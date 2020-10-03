@@ -364,13 +364,35 @@ namespace Huffman
             }
         }
 
-        public void AddBinary(NodeHuffTree paint)
+        public void AddBinary(NodeHuffTree paint, string listbinary)
         {
             if (paint != null)
             {
                 Console.WriteLine(paint.character);
-                AddBinary(paint.nodeLeft);
-                AddBinary(paint.nodeRight);
+                
+                if (paint.probability == 1)
+                {
+                    paint.nodeLeft.binary += "0";
+                    paint.nodeRight.binary += "1";
+                    Console.WriteLine("Lista del izquierdo: "+paint.nodeLeft.binary+ " Lista del derecho: " + paint.nodeRight.binary);
+                    AddBinary(paint.nodeLeft, paint.binary);
+
+                }
+                else
+                {
+                    if (paint.nodeLeft != null)
+                    {
+                        paint.binary += listbinary + "0";
+                        Console.WriteLine(paint.binary);
+                        AddBinary(paint.nodeLeft, paint.binary);
+                    }
+                    else if (paint.nodeLeft == null & paint.nodeRight!=null)
+                    {
+                        AddBinary(paint.nodeRight, paint.binary);
+                    }
+                }
+                //AddBinary(paint.nodeLeft,paint.binary);
+                //AddBinary(paint.nodeRight);
             }
         }
 
