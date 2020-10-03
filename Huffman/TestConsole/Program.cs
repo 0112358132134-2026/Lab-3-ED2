@@ -7,11 +7,12 @@ namespace TestConsole
     {
         static void Main(string[] args)
         {
-            HuffmanClass prueba = new HuffmanClass();
-            List<NodeTable> escrito = prueba.GenerateTable("ddabdccedchafbadgdcgabgccddbcdgg");
-            //COLA
-            HuffQueue<NodeTable> hola = new HuffQueue<NodeTable>();
-            prueba.AddToQueue(escrito, hola);
+            //string palbo = "pablo";
+            //palbo.Remove(0, 2);
+            //Console.WriteLine(palbo);
+            HuffmanClass huffman = new HuffmanClass();
+            string compressedText = huffman.Compression("ddabdccedchafbadgdcgabgccddbcdgg");
+            Console.WriteLine(compressedText);
             Console.ReadKey();
         }
     }

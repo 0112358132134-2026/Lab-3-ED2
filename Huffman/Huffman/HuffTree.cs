@@ -381,27 +381,26 @@ namespace Huffman
                     {
                         paint.binary += afterBinary + "1";
                     }
-                    Console.WriteLine(paint.character);
-                    Console.WriteLine(paint.binary);
                 }   
                 AddBinary(paint.nodeLeft, 1 , paint.binary);
                 AddBinary(paint.nodeRight, 2, paint.binary);
             }
         }
-
-        //public void AddBinary(NodeHuffTree paint)
-        //{
-        //    if (paint != null)
-        //    {
-        //        if (paint.probability != 1)
-        //        {
-        //            Console.WriteLine(paint.character);
-        //            AddBinary(paint.nodeLeft);
-        //            AddBinary(paint.nodeRight);
-        //        }
-
-        //    }
-        //}
+        
+        public void BinarysIncludes(NodeHuffTree paint, List<NodeTable> listWithBinarys)
+        {
+            if (paint != null)
+            {
+                NodeTable aux = new NodeTable
+                {
+                    character = paint.character,
+                    binary = paint.binary
+                };
+                listWithBinarys.Add(aux);
+                BinarysIncludes(paint.nodeLeft, listWithBinarys);
+                BinarysIncludes(paint.nodeRight, listWithBinarys);
+            }
+        }
 
         public object Clone()
         {

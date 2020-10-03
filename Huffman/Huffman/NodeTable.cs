@@ -6,6 +6,7 @@ namespace Huffman
         public string character;
         public int frequency;
         public double probability;
+        public string binary;
 
         public int CompareTo(object _objeto)
         {
