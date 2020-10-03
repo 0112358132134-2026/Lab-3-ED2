@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -104,7 +105,21 @@ namespace Huffman
             }
             //Separaramos por 8 bits y si no completa, agregar ceros:
             List<string> bytes = SeparateBytes(result);
-            return result;
+            //Convertimos los bytes a decimales y los agregamos a otra lista:
+            List<int> decimals = new List<int>();
+            for (int i = 0; i < bytes.Count; i++)
+            {
+                decimals.Add(ConvertBinaryToDecimal(bytes[i]));
+            }
+            //Generamos los ascii:
+            List<string> valuesResult = GenerateAscii(decimals);
+            //Mandamos a escribir el resultado final:
+            string RESULT = "";
+            for (int i = 0; i < valuesResult.Count; i++)
+            {
+                RESULT += valuesResult[i];
+            }
+            return RESULT;
         }
 
         public List<string> SeparateBytes(string largeBinary)
@@ -113,8 +128,7 @@ namespace Huffman
             List<string> result = new List<string>();
             bool OK = false;
             while (!OK)
-            {
-                
+            {                
                 if (auxiliar.Length >= 8)
                 {
 
@@ -142,6 +156,33 @@ namespace Huffman
                     OK = true;
                 }
             }  
+            return result;
+        }
+
+        public int ConvertBinaryToDecimal (string binary)
+        {
+            int exponent = binary.Length - 1;
+            int decimalNumber = 0;
+
+            for (int i = 0; i < binary.Length; i++)
+            {
+                if (int.Parse(binary.Substring(i, 1)) == 1)
+                {
+                    decimalNumber = decimalNumber + int.Parse(System.Math.Pow(2, double.Parse(exponent.ToString())).ToString());
+                }
+                exponent--;
+            }
+            return decimalNumber;
+        }
+
+        public List<string> GenerateAscii(List<int> listInts)
+        {
+            List<string> result = new List<string>();
+            for (int i = 0; i < listInts.Count; i++)
+            {
+                char character = (char)listInts[i];
+                result.Add(character.ToString());
+            }
             return result;
         }
     }
