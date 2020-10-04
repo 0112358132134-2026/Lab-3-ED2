@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using Huffman;
 namespace TestConsole
 {
@@ -9,8 +11,9 @@ namespace TestConsole
         {
             HuffmanClass huffman = new HuffmanClass();
             string compressedText = huffman.Compression("ddabdccedchafbadgdcgabgccddbcdgg");
-            Console.WriteLine(compressedText);
-            Console.ReadKey();
+            huffman.Descompression(@"C:\Users\68541\Desktop\Pruebita.txt");
+            Console.ReadLine();
+
         }
     }
 }
