@@ -67,7 +67,7 @@ namespace Huffman
             }
         }
 
-        public string Compression(string textToEncrypt)
+        public byte[] Compression(string textToEncrypt)
         {
             //Calculamos la tabla:
             List<NodeTable> table = GenerateTable(textToEncrypt);
@@ -115,8 +115,8 @@ namespace Huffman
                 decimals.Add(ConvertBinaryToDecimal(bytes[i]));
             }
             //Mandamos a escribir todo el texto (incluyendo su metadata):
-            returnBytesToWrite(table, decimals);
-            return "OK";
+            byte[] response = returnBytesToWrite(table, decimals);
+            return response;
         }
        
         public List<string> SeparateBytes(string largeBinary)
@@ -190,7 +190,7 @@ namespace Huffman
             return result;
         }
 
-        public void returnBytesToWrite(List<NodeTable> metaData, List<int> finalText)
+        public byte[] returnBytesToWrite(List<NodeTable> metaData, List<int> finalText)
         {
             //Arreglo resultante:
             byte[] result = null;
@@ -224,8 +224,9 @@ namespace Huffman
                 result = bytesToMetadata1(metaData.Count, metaData, finalText, size);
             }
             //Se manda a imprimir el resultado compreso:
-            using FileStream fileStream = new FileStream(@"C:\Users\68541\Desktop\Pruebita.txt", FileMode.OpenOrCreate);
-            fileStream.Write(result, 0, result.Length);
+            return result;
+            //using FileStream fileStream = new FileStream(@"C:\Users\68541\Desktop\Pruebita.txt", FileMode.OpenOrCreate);
+            //fileStream.Write(result, 0, result.Length);
         }
 
         //Devuelve el arreglo de Bytes si ninguna de las frecuencias supera las 255:

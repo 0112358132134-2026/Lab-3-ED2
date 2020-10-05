@@ -5,5 +5,9 @@
     <RootNamespace>API_Huffman</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Huffman\Huffman.csproj" />
+  </ItemGroup>
+
 
 </Project>
