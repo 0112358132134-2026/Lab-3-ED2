@@ -10,9 +10,11 @@ namespace TestConsole
         static void Main(string[] args)
         {
             HuffmanClass huffman = new HuffmanClass();
-            string compressedText = huffman.Compression("ddabdccedchafbadgdcgabgccddbcdgg");
-            huffman.Descompression(@"C:\Users\68541\Desktop\Pruebita.txt");
-            Console.ReadLine();
+            int oka = huffman.ConvertBinaryToDecimal("01010");
+            Console.WriteLine(oka.ToString());
+            //string compressedText = huffman.Compression("ddabdccedchafbadgdcgabgccddbcdgg");
+            //huffman.Descompression(@"C:\Users\68541\Desktop\Pruebita.txt");
+            //Console.ReadLine();
 
         }
     }

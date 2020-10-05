@@ -28,30 +28,35 @@ namespace API_Huffman.Controllers
         [Route("compress/{name}")]
         public ActionResult Compression([FromForm] IFormFile file, string name)
         {
-            string path = _env.ContentRootPath;
             HuffmanClass huffman = new HuffmanClass();
-            byte[] response = null;
+            byte[] result = null;
             using (var memory = new MemoryStream())
             {
                 file.CopyToAsync(memory);
                 string content = Encoding.ASCII.GetString(memory.ToArray());
-                response = huffman.Compression(content);
+                result = huffman.Compression(content);
             }
-            //using FileStream fileStream = new FileStream(@"C:\Users\68541\Desktop\XD.txt", FileMode.OpenOrCreate);
-            //fileStream.Write(response, 0, response.Length);
-            Archieve respueste = new Archieve();
-            respueste.content = response;
-            respueste.contentType = "compressFile / huff";
-            respueste.fileName = name;
-            return File(respueste.content, respueste.contentType, respueste.fileName + ".huff");
+            Archive response = new Archive
+            {
+                content = result,
+                contentType = "compressedFile / huff",
+                fileName = name
+            };
+            return File(response.content, response.contentType, response.fileName + ".huff");
         }
 
         [HttpPost]
         [Route("decompress")]
-        public HttpStatusCode Decompression([FromForm] string oka)
+        public ActionResult Decompression([FromForm] IFormFile file)
         {
-            string hola = oka + ": Bien hecho número 2";
-            return HttpStatusCode.OK;
+            HuffmanClass huffman = new HuffmanClass();
+            using (var memory = new MemoryStream())
+            {
+                file.CopyToAsync(memory);
+                byte[] bytes = memory.ToArray();
+                huffman.Decompression(bytes);
+            }
+            return Ok();
         }
 
         [HttpGet]

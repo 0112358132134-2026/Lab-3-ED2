@@ -314,24 +314,126 @@ namespace Huffman
         }
         
         //DESCOMPRESSION:
-        public void Descompression(string path)
+        public void Decompression(byte[] bytes)
         {
-            //Primero se debe extraer la metadata para saber cuántos bytes se deben leer:
-            //Para eso... siempre se leen 2 bytes (el primero, de la cantidad de caracteres; el segundo, de la cantidad de bytes que usa cada frecuencia):
-            var buffer = new byte[2];
-            using var fs = new FileStream(path, FileMode.OpenOrCreate);
-            fs.Read(buffer, 0, 2);
-            //Ya con los 2 primero bytes leídos, podemos leer los siguientes datos para formar la tablita denuevo:
-            if (buffer[1] == 1)
+            int startOfCompressedText = 0; 
+            //La primera posición del arreglo nos dirá cuántos carateres diferentes tiene:
+            int diferentsCharacters = bytes[0];
+            //La segunda posición del arreglo nos dirá cuántos bytes ocupan las frecuencias:
+            int bytesOfFrequencies = bytes[1];
+            //Se valida cuántos son:
+            List<NodeTable> table = new List<NodeTable>();
+            //Si solo ocupan 1 byte, entonces...
+            if (bytesOfFrequencies == 1)
             {
-                //Si la cantidad de bytes de cada frecuencia es 1, entonces:
-
+                int numberToReadMetadata = (diferentsCharacters * 2) + 1;
+                startOfCompressedText = numberToReadMetadata;
+                for (int i = 2; i <= numberToReadMetadata; i++)
+                {
+                    //Leemos primero los caracteres:
+                    char character = (char)bytes[i];
+                    i++;
+                    int frequency = bytes[i];
+                    //Agregamos a la "table":
+                    NodeTable aux = new NodeTable
+                    {
+                        character = character.ToString(),
+                        frequency = frequency
+                    };
+                    table.Add(aux);
+                }
             }
-            else if (buffer[1] == 2)
+            //Si ocupan 2 bytes, entonces...
+            else if (bytesOfFrequencies == 2)
             {
-                //Si la cantidad de bytes de cada frecuencia es 2, entonces:
-
+                int numberToReadMetadata = (diferentsCharacters * 3) + 1;
+                startOfCompressedText = numberToReadMetadata;
+                for (int i = 2; i < numberToReadMetadata; i++)
+                {
+                    //Leemos primero los caracteres:
+                    char character = (char)bytes[i];
+                    i++;
+                    //Ya que las frecuencias ocupan dos bytes, debemos:
+                    //Primero: Convertir la 2da. y 3ra. posición a bytes
+                    int frequency1 = bytes[i];
+                    i++;
+                    int frequency2 = bytes[i];
+                    //Segundo: Ya convertidos a bytes, ambos se deben convertir a binarios
+                    string binary1 = ConvertDecimalToBinary(frequency1);
+                    string binary2 = ConvertDecimalToBinary(frequency2);
+                    //Tercero: Concatenamos los dos binarios, para formar uno solo
+                    string resultantBinary = binary1 + binary2;
+                    //Cuarto: Convertimos el binario en decimal para obtener la frecuencia total
+                    int frequencyTotal = ConvertBinaryToDecimal(resultantBinary);
+                    //Agregamos a la "table":
+                    NodeTable aux = new NodeTable
+                    {
+                        character = character.ToString(),
+                        frequency = frequencyTotal
+                    };
+                    table.Add(aux);
+                }
             }
+            //Se llena la tablita con sus probabilidades y se vuelve a hacer todo el proceso de la cola y el árbol, etc...
+            //Se calcula la probabilidad de cada caracter:
+            double totalFrequency = 0;
+            for (int i = 0; i < table.Count; i++)
+            {
+                totalFrequency += table[i].frequency;
+            }
+            for (int i = 0; i < table.Count; i++)
+            {
+                table[i].probability = table[i].frequency / totalFrequency;
+            }
+            //Incicializamos una cola e insertamos los valores:
+            HuffQueue<NodeTable> queue = new HuffQueue<NodeTable>();
+            AddToQueue(table, queue);
+            //Agregamos al árbol de Huffman:
+            HuffTree tree = new HuffTree();
+            tree.Insert(queue, tree);
+            //Agregar al árbol, las codificaciones:
+            tree.AddBinary(tree.rootOriginal, 0, "");
+            //Añadimos a la tabla las codificaciones de cada caracter en su lugar correspondiente:
+            //Para eso debemos llenar una lista con los caracteres y codificaciones del árbol:
+            List<NodeTable> auxiliar = new List<NodeTable>();
+            tree.BinarysIncludes(tree.rootOriginal, auxiliar);
+            //Ya con la lista, se lo agregamos a la "table":
+            for (int i = 0; i < auxiliar.Count; i++)
+            {
+                for (int j = 0; j < table.Count; j++)
+                {
+                    if (auxiliar[i].character == table[j].character)
+                    {
+                        table[j].binary = auxiliar[i].binary;
+                    }
+                }
+            }
+            //Ya con toda la table hecha, procedemos a leer el texto compreso para su descompresión:
+            string largeBinary = "";
+            for (int i = startOfCompressedText + 1; i < bytes.Length; i++)
+            {
+                //Se convierte cada decimal a binario y se agrega a un solo string con el binario largo original:
+                string binaryIndividual = ConvertDecimalToBinary(bytes[i]);
+                //Si el tamaño, es menor a 8, entonces se agregan 0´s al inicio:
+                if (binaryIndividual.Length < 8 )
+                {
+                    int restants = 8 - binaryIndividual.Length;
+                    string others = "";
+                    for (int j = 0; j < restants; j++)
+                    {
+                        others += "0";
+                    }
+                    string ok = others + binaryIndividual;
+                    largeBinary += ok;
+                }
+                else
+                {
+                    largeBinary += binaryIndividual;
+                }
+            }
+            //Ya con la cadena larga de binario... se van haciendo comparaciones en la "table" para obtener el texto original:
+
+
         }
     }
 }
