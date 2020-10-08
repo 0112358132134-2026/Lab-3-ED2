@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Huffman;
 using Microsoft.AspNetCore.ResponseCompression;
 using API_Huffman.Models;
+using Microsoft.AspNetCore.Builder;
 
 namespace API_Huffman.Controllers
 {
@@ -24,15 +25,24 @@ namespace API_Huffman.Controllers
             _env = env;
         }
 
+        HuffmanClass huffman = new HuffmanClass();
+
         [HttpPost]
         [Route("compress/{name}")]
-        public ActionResult Compression([FromForm] IFormFile file, string name)
-        {
-            HuffmanClass huffman = new HuffmanClass();
+        public async Task<ActionResult> Compression([FromForm] IFormFile file, string name)
+        {           
             byte[] result = null;
             using (var memory = new MemoryStream())
             {
-                file.CopyToAsync(memory);
+                await file.CopyToAsync(memory);
+                //
+                byte[] pruebita = memory.ToArray();
+                char[] oki = new char[pruebita.Length];
+                for (int i = 0; i < pruebita.Length; i++)
+                {
+                    oki[i] = (char)pruebita[i];
+                }
+                //
                 string content = Encoding.ASCII.GetString(memory.ToArray());
                 result = huffman.Compression(content);
             }
@@ -49,14 +59,21 @@ namespace API_Huffman.Controllers
         [Route("decompress")]
         public ActionResult Decompression([FromForm] IFormFile file)
         {
-            HuffmanClass huffman = new HuffmanClass();
+            byte[] result = null;
             using (var memory = new MemoryStream())
             {
                 file.CopyToAsync(memory);
                 byte[] bytes = memory.ToArray();
-                huffman.Decompression(bytes);
+                string content = huffman.Decompression(bytes);
+                result = Encoding.ASCII.GetBytes(content);
             }
-            return Ok();
+            Archive response = new Archive
+            {
+                content = result,
+                contentType = "compressedFile / txt",
+                fileName = "descompreso"
+            };
+            return File(response.content,response.contentType, response.fileName + ".txt");
         }
 
         [HttpGet]

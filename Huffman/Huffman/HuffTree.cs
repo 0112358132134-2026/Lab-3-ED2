@@ -265,8 +265,19 @@ namespace Huffman
                             {
                                 //Se guardan y se remueven de la lista:
                                 NodeHuffTree valueMatchOnList1 = listAux[posMatchFirstNewSon];
-                                listAux.RemoveAt(posMatchFirstNewSon);
                                 NodeHuffTree valueMatchOnList2 = listAux[posMatchSecondNewSon];
+                                listAux.RemoveAt(posMatchFirstNewSon);
+                                //Se valida si no es mayor la posición, ya que se habrá eliminado:
+                                //
+                                //NUEVO
+                                //
+                                if (posMatchSecondNewSon > posMatchFirstNewSon)
+                                {
+                                    posMatchSecondNewSon -= 1;
+                                }
+                                //
+                                //NUEVO
+                                //
                                 listAux.RemoveAt(posMatchSecondNewSon);
                                 //Se valida en qué posición van (izquierda, derecha):
                                 if (valueMatchOnList2.probability > valueMatchOnList1.probability)

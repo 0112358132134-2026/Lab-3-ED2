@@ -128,18 +128,8 @@ namespace Huffman
             {
                 if (auxiliar.Length >= 8)
                 {
-
                     result.Add(auxiliar.Substring(0, 8));
-                    //Se eliminan:
-                    string remove = "";
-                    for (int i = 0; i < auxiliar.Length; i++)
-                    {
-                        if (i >= 8)
-                        {
-                            remove += auxiliar[i].ToString();
-                        }
-                    }
-                    auxiliar = remove;
+                    auxiliar = auxiliar.Remove(0,8);                   
                 }
                 else
                 {
@@ -153,6 +143,16 @@ namespace Huffman
                     OK = true;
                 }
             }
+            //Se eliminan:
+            //string remove = "";
+            //for (int i = 0; i < auxiliar.Length; i++)
+            //{
+            //    if (i >= 8)
+            //    {
+            //        remove += auxiliar[i].ToString();
+            //    }
+            //}
+            //auxiliar = remove;
             return result;
         }
        
@@ -314,7 +314,7 @@ namespace Huffman
         }
         
         //DESCOMPRESSION:
-        public void Decompression(byte[] bytes)
+        public string Decompression(byte[] bytes)
         {
             int startOfCompressedText = 0; 
             //La primera posición del arreglo nos dirá cuántos carateres diferentes tiene:
@@ -359,8 +359,29 @@ namespace Huffman
                     i++;
                     int frequency2 = bytes[i];
                     //Segundo: Ya convertidos a bytes, ambos se deben convertir a binarios
+                    //
+                    //NUEVO
+                    //
                     string binary1 = ConvertDecimalToBinary(frequency1);
+                    if (binary1 == "")
+                    {
+                        binary1 = "0";
+                    }
                     string binary2 = ConvertDecimalToBinary(frequency2);
+                    if (binary2.Length < 8)
+                    {
+                        string copy = binary2;
+                        binary2 = "";
+                        int restant = 8 - copy.Length;
+                        for (int j = 0; j < restant; j++)
+                        {
+                            binary2 += "0";
+                        }
+                        binary2 += copy;
+                    }
+                    //
+                    //NUEVI
+                    //
                     //Tercero: Concatenamos los dos binarios, para formar uno solo
                     string resultantBinary = binary1 + binary2;
                     //Cuarto: Convertimos el binario en decimal para obtener la frecuencia total
@@ -432,8 +453,44 @@ namespace Huffman
                 }
             }
             //Ya con la cadena larga de binario... se van haciendo comparaciones en la "table" para obtener el texto original:
-
-
+            bool empty = false;
+            string result = "";
+            while (!empty)
+            {
+                bool match = false;
+                int counter = 0;
+                int posMatch = 0;
+                while (!match)
+                {
+                    counter++;
+                    for (int i = 0; i < table.Count; i++)
+                    {
+                        if (largeBinary.Substring(0, counter) == table[i].binary)
+                        {
+                            result += table[i].character;
+                            posMatch = counter;
+                            match = true;
+                        }
+                    }                    
+                }
+                //Se elimina lo que ya se encontró:
+                if (match)
+                {
+                    largeBinary = largeBinary.Remove(0, posMatch);
+                    //string copy = largeBinary;
+                    //largeBinary = "";
+                    //for (int i = posMatch; i < copy.Length; i++)
+                    //{
+                    //    largeBinary += copy[i].ToString();
+                    //}
+                }
+                //Se comprueba si ya se debe dejar de leer:
+                if (result.Length == totalFrequency)
+                {
+                    empty = true;
+                }
+            }
+            return result;
         }
     }
 }
