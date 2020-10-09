@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Xml;
-
 namespace Huffman
 {
-    public class HuffmanClass
+    public class Huffman: IHuffman
     {
-        //COMPRESSION:
-        public List<NodeTable> GenerateTable(string text)
+        #region "For Both"
+        public List<NodeTable> GenerateTable(char[] text)
         {
             //Se agregan los caracteres y sus frecuencias:
             List<NodeTable> result = new List<NodeTable>();
@@ -58,7 +50,6 @@ namespace Huffman
             }
             return result;
         }
-
         public void AddToQueue(List<NodeTable> values, HuffQueue<NodeTable> queue)
         {
             for (int i = 0; i < values.Count; i++)
@@ -66,8 +57,9 @@ namespace Huffman
                 queue.Insert(values[i], values[i].probability);
             }
         }
-
-        public byte[] Compression(string textToEncrypt)
+        #endregion
+        #region "Compression"
+        public byte[] Compression(char[] textToEncrypt)
         {
             //Calculamos la tabla:
             List<NodeTable> table = GenerateTable(textToEncrypt);
@@ -96,16 +88,19 @@ namespace Huffman
             }
             //Escribimos la codificación en lugar del texto original:
             string result = "";
+            StringBuilder concatenar = new StringBuilder();
             for (int i = 0; i < textToEncrypt.Length; i++)
             {
                 for (int j = 0; j < table.Count; j++)
                 {
                     if (textToEncrypt[i].ToString() == table[j].character)
                     {
-                        result += table[j].binary;
+                        //result += table[j].binary;
+                        concatenar.Append(table[j].binary);
                     }
                 }
             }
+            result = concatenar.ToString();
             //Separaramos por 8 bits y si no completa, agregar ceros:
             List<string> bytes = SeparateBytes(result);
             //Convertimos los bytes a decimales y los agregamos a otra lista:
@@ -115,82 +110,37 @@ namespace Huffman
                 decimals.Add(ConvertBinaryToDecimal(bytes[i]));
             }
             //Mandamos a escribir todo el texto (incluyendo su metadata):
-            byte[] response = returnBytesToWrite(table, decimals);
+            byte[] response = ReturnBytesToWrite(table, decimals);
             return response;
-        }
-       
+        }       
         public List<string> SeparateBytes(string largeBinary)
         {
-            string auxiliar = largeBinary;
+            StringBuilder copy = new StringBuilder();
+            copy.Append(largeBinary);
             List<string> result = new List<string>();
             bool OK = false;
             while (!OK)
             {
-                if (auxiliar.Length >= 8)
+                if (copy.Length >= 8)
                 {
-                    result.Add(auxiliar.Substring(0, 8));
-                    auxiliar = auxiliar.Remove(0,8);                   
+                    result.Add(copy.ToString(0,8));
+                    copy.Remove(0,8);                   
                 }
                 else
                 {
                     //Agregamos la cantidad de 0´s que hagan falta para alcanzar los 8
-                    int length = auxiliar.Length;
+                    int length = copy.Length;
                     for (int i = length; i < 8; i++)
                     {
-                        auxiliar += "0";
+                        copy.Append("0");
                     }
-                    result.Add(auxiliar);
+                    result.Add(copy.ToString());
                     OK = true;
                 }
             }
-            //Se eliminan:
-            //string remove = "";
-            //for (int i = 0; i < auxiliar.Length; i++)
-            //{
-            //    if (i >= 8)
-            //    {
-            //        remove += auxiliar[i].ToString();
-            //    }
-            //}
-            //auxiliar = remove;
             return result;
-        }
-       
-        public int ConvertBinaryToDecimal(string binary)
-        {
-            int exponent = binary.Length - 1;
-            int decimalNumber = 0;
-
-            for (int i = 0; i < binary.Length; i++)
-            {
-                if (int.Parse(binary.Substring(i, 1)) == 1)
-                {
-                    decimalNumber += int.Parse(System.Math.Pow(2, double.Parse(exponent.ToString())).ToString());
-                }
-                exponent--;
-            }
-            return decimalNumber;
-        }
-
-        public string ConvertDecimalToBinary(int number)
-        {
-            string result = "";
-            while (number > 0)
-            {
-                if (number % 2 == 0)
-                {
-                    result = "0" + result;
-                }
-                else
-                {
-                    result = "1" + result;
-                }
-                number = (int)(number / 2);
-            }
-            return result;
-        }
-
-        public byte[] returnBytesToWrite(List<NodeTable> metaData, List<int> finalText)
+        }       
+        public byte[] ReturnBytesToWrite(List<NodeTable> metaData, List<int> finalText)
         {
             //Arreglo resultante:
             byte[] result = null;
@@ -216,21 +166,17 @@ namespace Huffman
             //Mandamos a trear el arreglo de bytes para dos, si "numberOfBytes" es = 2:
             if (numberOfBytes == 2)
             {
-                result = bytesToMetadata2(metaData.Count, metaData, finalText, size);
+                result = BytesToMetadata2(metaData.Count, metaData, finalText, size);
             }
             //Mandamos a trear el arreglo de bytes para uno, si "numberOfBytes" es = 1:
             else if (numberOfBytes == 1)
             {
-                result = bytesToMetadata1(metaData.Count, metaData, finalText, size);
+                result = BytesToMetadata1(metaData.Count, metaData, finalText, size);
             }
             //Se manda a imprimir el resultado compreso:
             return result;
-            //using FileStream fileStream = new FileStream(@"C:\Users\68541\Desktop\Pruebita.txt", FileMode.OpenOrCreate);
-            //fileStream.Write(result, 0, result.Length);
         }
-
-        //Devuelve el arreglo de Bytes si ninguna de las frecuencias supera las 255:
-        public byte[] bytesToMetadata1(int totalCharacters, List<NodeTable> metaData, List<int> finalText, int arraySize)
+        public byte[] BytesToMetadata1(int totalCharacters, List<NodeTable> metaData, List<int> finalText, int arraySize)
         {
             //TODOS LOS PARÁMETROS QUE RECIBE... DEBEN CONVERTISE A BYTES Y AGREGARSE AL ARREGLO RESULTANTE--
             //Esta lista contedrá la metaData en ints:
@@ -264,9 +210,7 @@ namespace Huffman
             }
             return result;
         }
-
-        //Devuelve el arreglo de Bytes si alguna de las frecuencias supera las 255:
-        public byte[] bytesToMetadata2(int totalCharacters, List<NodeTable> metaData, List<int> finalText, int arraySize)
+        public byte[] BytesToMetadata2(int totalCharacters, List<NodeTable> metaData, List<int> finalText, int arraySize)
         {
             //TODOS LOS PARÁMETROS QUE RECIBE... DEBEN CONVERTISE A BYTES Y AGREGARSE AL ARREGLO RESULTANTE--
             //Esta lista contendrá los pares de binarios para cada frecuencia (si la frecuencia, en binario, supera los 8 dígitos... se divide el binario en 2... de lo contrario se divide en 2 pero el primero será 0):
@@ -312,9 +256,9 @@ namespace Huffman
             }
             return result;
         }
-        
-        //DESCOMPRESSION:
-        public string Decompression(byte[] bytes)
+        #endregion
+        #region "Descompression"
+        public List<char> Decompression(byte[] bytes)
         {
             int startOfCompressedText = 0; 
             //La primera posición del arreglo nos dirá cuántos carateres diferentes tiene:
@@ -359,9 +303,6 @@ namespace Huffman
                     i++;
                     int frequency2 = bytes[i];
                     //Segundo: Ya convertidos a bytes, ambos se deben convertir a binarios
-                    //
-                    //NUEVO
-                    //
                     string binary1 = ConvertDecimalToBinary(frequency1);
                     if (binary1 == "")
                     {
@@ -379,9 +320,6 @@ namespace Huffman
                         }
                         binary2 += copy;
                     }
-                    //
-                    //NUEVI
-                    //
                     //Tercero: Concatenamos los dos binarios, para formar uno solo
                     string resultantBinary = binary1 + binary2;
                     //Cuarto: Convertimos el binario en decimal para obtener la frecuencia total
@@ -431,6 +369,7 @@ namespace Huffman
             }
             //Ya con toda la table hecha, procedemos a leer el texto compreso para su descompresión:
             string largeBinary = "";
+            StringBuilder aux2 = new StringBuilder();
             for (int i = startOfCompressedText + 1; i < bytes.Length; i++)
             {
                 //Se convierte cada decimal a binario y se agrega a un solo string con el binario largo original:
@@ -445,16 +384,19 @@ namespace Huffman
                         others += "0";
                     }
                     string ok = others + binaryIndividual;
-                    largeBinary += ok;
+                    aux2.Append(ok);
                 }
                 else
                 {
-                    largeBinary += binaryIndividual;
+                    aux2.Append(binaryIndividual);
                 }
             }
+            largeBinary = aux2.ToString();
+            StringBuilder aux4 = new StringBuilder();
+            aux4.Append(largeBinary);
             //Ya con la cadena larga de binario... se van haciendo comparaciones en la "table" para obtener el texto original:
-            bool empty = false;
-            string result = "";
+            bool empty = false;   
+            List<char> respuesta = new List<char>();
             while (!empty)
             {
                 bool match = false;
@@ -465,9 +407,10 @@ namespace Huffman
                     counter++;
                     for (int i = 0; i < table.Count; i++)
                     {
-                        if (largeBinary.Substring(0, counter) == table[i].binary)
+                        if (aux4.ToString(0, counter) == table[i].binary)
                         {
-                            result += table[i].character;
+                            char[] aux = table[i].character.ToCharArray();
+                            respuesta.Add(aux[0]);
                             posMatch = counter;
                             match = true;
                         }
@@ -476,21 +419,50 @@ namespace Huffman
                 //Se elimina lo que ya se encontró:
                 if (match)
                 {
-                    largeBinary = largeBinary.Remove(0, posMatch);
-                    //string copy = largeBinary;
-                    //largeBinary = "";
-                    //for (int i = posMatch; i < copy.Length; i++)
-                    //{
-                    //    largeBinary += copy[i].ToString();
-                    //}
+                    aux4.Remove(0, posMatch);
                 }
                 //Se comprueba si ya se debe dejar de leer:
-                if (result.Length == totalFrequency)
+                if (respuesta.Count == totalFrequency)
                 {
                     empty = true;
                 }
             }
+            return respuesta;
+        }
+        #endregion
+        #region "Auxiliaries"
+        public int ConvertBinaryToDecimal(string binary)
+        {
+            int exponent = binary.Length - 1;
+            int decimalNumber = 0;
+
+            for (int i = 0; i < binary.Length; i++)
+            {
+                if (int.Parse(binary.Substring(i, 1)) == 1)
+                {
+                    decimalNumber += int.Parse(System.Math.Pow(2, double.Parse(exponent.ToString())).ToString());
+                }
+                exponent--;
+            }
+            return decimalNumber;
+        }
+        public string ConvertDecimalToBinary(int number)
+        {
+            string result = "";
+            while (number > 0)
+            {
+                if (number % 2 == 0)
+                {
+                    result = "0" + result;
+                }
+                else
+                {
+                    result = "1" + result;
+                }
+                number = (int)(number / 2);
+            }
             return result;
         }
+        #endregion
     }
 }

@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Huffman;
 using Microsoft.AspNetCore.ResponseCompression;
 using API_Huffman.Models;
 using Microsoft.AspNetCore.Builder;
+using Huffman;
 
 namespace API_Huffman.Controllers
 {
@@ -25,26 +25,25 @@ namespace API_Huffman.Controllers
             _env = env;
         }
 
-        HuffmanClass huffman = new HuffmanClass();
+        Huffman.Huffman huffman = new Huffman.Huffman();
 
         [HttpPost]
         [Route("compress/{name}")]
         public async Task<ActionResult> Compression([FromForm] IFormFile file, string name)
-        {           
+        {
+            //COMPRESSION
             byte[] result = null;
+            byte[] copy = null;
             using (var memory = new MemoryStream())
             {
-                await file.CopyToAsync(memory);
-                //
-                byte[] pruebita = memory.ToArray();
-                char[] oki = new char[pruebita.Length];
-                for (int i = 0; i < pruebita.Length; i++)
+                await file.CopyToAsync(memory);                
+                copy = memory.ToArray();
+                char[] array = new char[copy.Length];
+                for (int i = 0; i < copy.Length; i++)
                 {
-                    oki[i] = (char)pruebita[i];
+                    array[i] = (char)copy[i];
                 }
-                //
-                string content = Encoding.ASCII.GetString(memory.ToArray());
-                result = huffman.Compression(content);
+                result = huffman.Compression(array);
             }
             Archive response = new Archive
             {
@@ -52,20 +51,39 @@ namespace API_Huffman.Controllers
                 contentType = "compressedFile / huff",
                 fileName = name
             };
+            //JSON
+            HuffCompressions jsonValues = new HuffCompressions
+            {
+                OriginalName = file.Name,
+                CompressedFilePath = _env.ContentRootPath,
+                CompressionRatio = result.Length / copy.Length,
+                CompressionFactor = copy.Length / result.Length,
+                ReductionPorcentage = 1 - ((result.Length * 100)/ copy.Length)
+            };
+            JsonFile addToJson = new JsonFile();
+            addToJson.WriteInJson(jsonValues, _env.ContentRootPath);
+            //PATH
+            string compressionPath = _env.ContentRootPath + "/Compressions/" + file.Name + ".huff";
+            using (FileStream fs = System.IO.File.Create(compressionPath))
+            {
+                fs.Write(result);
+            }
             return File(response.content, response.contentType, response.fileName + ".huff");
         }
 
         [HttpPost]
         [Route("decompress")]
-        public ActionResult Decompression([FromForm] IFormFile file)
+        public async Task<ActionResult> Decompression([FromForm] IFormFile file)
         {
             byte[] result = null;
             using (var memory = new MemoryStream())
             {
-                file.CopyToAsync(memory);
-                byte[] bytes = memory.ToArray();
-                string content = huffman.Decompression(bytes);
-                result = Encoding.ASCII.GetBytes(content);
+                await file.CopyToAsync(memory);
+                byte[] bytes = memory.ToArray();          
+                List<char> content = huffman.Decompression(bytes);
+                result = new byte[content.Count];
+                for (int i = 0; i < content.Count; i++)                
+                result[i] = (byte)content[i];                
             }
             Archive response = new Archive
             {
@@ -75,12 +93,29 @@ namespace API_Huffman.Controllers
             };
             return File(response.content,response.contentType, response.fileName + ".txt");
         }
-
+        
         [HttpGet]
         [Route("compressions")]
-        public HttpStatusCode Compressions()
+        public ActionResult Compressions()
         {
-            return HttpStatusCode.OK;
+            List<HuffCompressions> list = new List<HuffCompressions>();
+            JsonFile addToJson = new JsonFile();
+            if (System.IO.File.Exists(_env.ContentRootPath + "/Compressions.json"))
+            {
+                using (FileStream fileRead = System.IO.File.OpenRead(_env.ContentRootPath + "/Compressions.json"))
+                {
+                    string result = "";
+                    MemoryStream memory = new MemoryStream();
+                    fileRead.CopyTo(memory);
+                    result = Encoding.ASCII.GetString(memory.ToArray());
+                    list = addToJson.Deselearize(result);
+                }
+                return Ok(list);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }

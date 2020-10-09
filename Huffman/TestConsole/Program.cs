@@ -9,7 +9,7 @@ namespace TestConsole
     {
         static void Main(string[] args)
         {
-            HuffmanClass huffman = new HuffmanClass();
+            Huffman.Huffman huffman = new Huffman.Huffman();
             int oka = huffman.ConvertBinaryToDecimal("01010");
             Console.WriteLine(oka.ToString());
             //string compressedText = huffman.Compression("ddabdccedchafbadgdcgabgccddbcdgg");

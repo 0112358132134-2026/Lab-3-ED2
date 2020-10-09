@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Huffman\Huffman.csproj" />
+    <ProjectReference Include="..\Huffman\HuffmanStructures.csproj" />
   </ItemGroup>
 
 

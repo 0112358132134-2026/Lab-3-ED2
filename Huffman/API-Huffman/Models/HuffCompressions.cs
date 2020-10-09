@@ -2,10 +2,10 @@
 {
     public class HuffCompressions
     {
-        public string originalName { get; set; }
-        public string compressedFilePath { get; set; }
-        public double compressionRatio { get; set; }
-        public double compressionFactor { get; set; }
-        public double reductionPorcentage { get; set; }
+        public string OriginalName { get; set; }
+        public string CompressedFilePath { get; set; }
+        public double CompressionRatio { get; set; }
+        public double CompressionFactor { get; set; }
+        public double ReductionPorcentage { get; set; }
     }
 }
