@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using Huffman;
 namespace TestConsole
 {
     public class Program
@@ -10,12 +7,37 @@ namespace TestConsole
         static void Main(string[] args)
         {
             Huffman.Huffman huffman = new Huffman.Huffman();
-            int oka = huffman.ConvertBinaryToDecimal("01010");
-            Console.WriteLine(oka.ToString());
-            //string compressedText = huffman.Compression("ddabdccedchafbadgdcgabgccddbcdgg");
-            //huffman.Descompression(@"C:\Users\68541\Desktop\Pruebita.txt");
-            //Console.ReadLine();
-
+            //Compresión
+            string prueba = "ddabdccedchafbadgdcgabgccddbcdgg";
+            char[] arregloDeChars = prueba.ToCharArray();
+            byte[] arregloDeCompresión = huffman.Compression(arregloDeChars);
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine("El texto original es: " + prueba);
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine("Su texto compreso es:");
+            Console.WriteLine();
+            for (int i = 0; i < arregloDeCompresión.Length; i++)
+            {
+                char resultado = (char)arregloDeCompresión[i];
+                Console.Write(resultado.ToString());
+            }
+            Console.WriteLine();
+            Console.WriteLine("--------------------------------");
+            //Descompresión
+            Console.WriteLine("Presione cualquier tecla para descomprimir...");
+            Console.ReadKey();
+            Console.Clear();
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine("El texto original es:");
+            Console.WriteLine();
+            List<char> arregloDecompreso = huffman.Decompression(arregloDeCompresión);
+            for (int i = 0; i < arregloDecompreso.Count; i++)
+            {
+                Console.Write(arregloDecompreso[i].ToString());
+            }
+            Console.WriteLine();
+            Console.WriteLine("--------------------------------");
+            Console.ReadKey();
         }
     }
 }

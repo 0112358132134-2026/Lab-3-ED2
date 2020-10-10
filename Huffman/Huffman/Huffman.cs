@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 namespace Huffman
 {
@@ -59,7 +60,7 @@ namespace Huffman
         }
         #endregion
         #region "Compression"
-        public byte[] Compression(char[] textToEncrypt)
+        public byte[] Compression(char[] textToEncrypt, string originalName)
         {
             //Calculamos la tabla:
             List<NodeTable> table = GenerateTable(textToEncrypt);
@@ -109,8 +110,15 @@ namespace Huffman
             {
                 decimals.Add(ConvertBinaryToDecimal(bytes[i]));
             }
+            //
+            //
+            //
+            List<byte> oName = BytesToOriginalName(originalName);
+            //
+            //
+            //
             //Mandamos a escribir todo el texto (incluyendo su metadata):
-            byte[] response = ReturnBytesToWrite(table, decimals);
+            byte[] response = ReturnBytesToWrite(table, decimals, oName);
             return response;
         }       
         public List<string> SeparateBytes(string largeBinary)
@@ -140,7 +148,7 @@ namespace Huffman
             }
             return result;
         }       
-        public byte[] ReturnBytesToWrite(List<NodeTable> metaData, List<int> finalText)
+        public byte[] ReturnBytesToWrite(List<NodeTable> metaData, List<int> finalText, List<byte> bytesOName)
         {
             //Arreglo resultante:
             byte[] result = null;
@@ -162,21 +170,21 @@ namespace Huffman
                 numberOfBytes = 2;
             }
             //Definimos el tamaño del arreglo de bytes:
-            int size = 2 + (metaData.Count * (numberOfBytes + 1)) + finalText.Count;
+            int size = bytesOName.Count + 2 + (metaData.Count * (numberOfBytes + 1)) + finalText.Count;
             //Mandamos a trear el arreglo de bytes para dos, si "numberOfBytes" es = 2:
             if (numberOfBytes == 2)
             {
-                result = BytesToMetadata2(metaData.Count, metaData, finalText, size);
+                result = BytesToMetadata2(metaData.Count, metaData, finalText, size, bytesOName);
             }
             //Mandamos a trear el arreglo de bytes para uno, si "numberOfBytes" es = 1:
             else if (numberOfBytes == 1)
             {
-                result = BytesToMetadata1(metaData.Count, metaData, finalText, size);
+                result = BytesToMetadata1(metaData.Count, metaData, finalText, size, bytesOName);
             }
             //Se manda a imprimir el resultado compreso:
             return result;
         }
-        public byte[] BytesToMetadata1(int totalCharacters, List<NodeTable> metaData, List<int> finalText, int arraySize)
+        public byte[] BytesToMetadata1(int totalCharacters, List<NodeTable> metaData, List<int> finalText, int arraySize, List<byte> bytesOName)
         {
             //TODOS LOS PARÁMETROS QUE RECIBE... DEBEN CONVERTISE A BYTES Y AGREGARSE AL ARREGLO RESULTANTE--
             //Esta lista contedrá la metaData en ints:
@@ -192,6 +200,14 @@ namespace Huffman
             }
             //Ya con todos los parámetros convertidos a enteros... los agregamos todos a una sola lista de enteros:
             List<int> allParameters = new List<int>();
+
+
+            for (int i = 0; i < bytesOName.Count; i++)
+            {
+                allParameters.Add((int)bytesOName[i]);
+            }
+
+
             allParameters.Add(totalCharacters);
             allParameters.Add(1);
             for (int i = 0; i < metaDataDecimal.Count; i++)
@@ -210,7 +226,7 @@ namespace Huffman
             }
             return result;
         }
-        public byte[] BytesToMetadata2(int totalCharacters, List<NodeTable> metaData, List<int> finalText, int arraySize)
+        public byte[] BytesToMetadata2(int totalCharacters, List<NodeTable> metaData, List<int> finalText, int arraySize, List<byte> bytesOName)
         {
             //TODOS LOS PARÁMETROS QUE RECIBE... DEBEN CONVERTISE A BYTES Y AGREGARSE AL ARREGLO RESULTANTE--
             //Esta lista contendrá los pares de binarios para cada frecuencia (si la frecuencia, en binario, supera los 8 dígitos... se divide el binario en 2... de lo contrario se divide en 2 pero el primero será 0):
@@ -238,6 +254,14 @@ namespace Huffman
             }
             //Ya con todos los paráemtros convertidos a enteros... los agregamos todos a una sola lista de enteros:
             List<int> allParameters = new List<int>();
+
+
+            for (int i = 0; i < bytesOName.Count; i++)
+            {
+                allParameters.Add((int)bytesOName[i]);
+            }
+
+
             allParameters.Add(totalCharacters);
             allParameters.Add(2);
             for (int i = 0; i < metaDataDecimal.Count; i++)
@@ -256,9 +280,20 @@ namespace Huffman
             }
             return result;
         }
+        public List<byte> BytesToOriginalName(string originalName)
+        {
+            List<byte> listAux = new List<byte>();
+            for (int i = 0; i < originalName.Length; i++)
+            {
+                char ok = (char)originalName[i];
+                listAux.Add((byte)ok);
+            }
+            listAux.Add(10);
+            return listAux;
+        }
         #endregion
         #region "Descompression"
-        public List<char> Decompression(byte[] bytes)
+        public List<char> Decompression(List<byte> bytes)
         {
             int startOfCompressedText = 0; 
             //La primera posición del arreglo nos dirá cuántos carateres diferentes tiene:
@@ -370,7 +405,7 @@ namespace Huffman
             //Ya con toda la table hecha, procedemos a leer el texto compreso para su descompresión:
             string largeBinary = "";
             StringBuilder aux2 = new StringBuilder();
-            for (int i = startOfCompressedText + 1; i < bytes.Length; i++)
+            for (int i = startOfCompressedText + 1; i < bytes.Count; i++)
             {
                 //Se convierte cada decimal a binario y se agrega a un solo string con el binario largo original:
                 string binaryIndividual = ConvertDecimalToBinary(bytes[i]);
@@ -428,6 +463,26 @@ namespace Huffman
                 }
             }
             return respuesta;
+        }
+        public string GetOriginalName(List<byte> bytes)
+        {
+            bool matchAux = false;
+            StringBuilder result = new StringBuilder();
+            while (!matchAux)
+            {
+                if (bytes[0] == 10)
+                {
+                    matchAux = true;
+                    bytes.RemoveAt(0);
+                }
+                else
+                {
+                    char aux = (char)bytes[0];
+                    result.Append(aux.ToString());
+                    bytes.RemoveAt(0);
+                }
+            }  
+            return result.ToString();
         }
         #endregion
         #region "Auxiliaries"
