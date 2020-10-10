@@ -26,7 +26,6 @@ namespace API_Huffman.Controllers
         [Route("compress/{name}")]
         public async Task<ActionResult> Compression([FromForm] IFormFile file, string name)
         {
-            string prueba = file.FileName;
             try
             {
                 //COMPRESSION
@@ -56,7 +55,8 @@ namespace API_Huffman.Controllers
                     CompressedFilePath = _env.ContentRootPath + "\\Compressions",
                     CompressionRatio = (double)result.Length / (double)copy.Length,
                     CompressionFactor = (double)copy.Length / (double)result.Length,
-                    ReductionPorcentage = ((double)result.Length / (double)copy.Length) * 100
+                    //ReductionPorcentage = ((double)result.Length / (double)copy.Length) * 100
+                    ReductionPorcentage = 1 - ((double)result.Length / (double)copy.Length)
                 };
                 JsonFile addToJson = new JsonFile();
                 addToJson.WriteInJson(jsonValues, _env.ContentRootPath);

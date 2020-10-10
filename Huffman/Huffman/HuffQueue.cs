@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-
 namespace Huffman
 {
     public class HuffQueue <T> where T : IComparable
@@ -307,7 +305,6 @@ namespace Huffman
                             }
                         }
                     }
-                    //LISTO
                     else if ((_root.Priority >= _root.NodoLeft.Priority) && (_root.Priority < _root.NodoRight.Priority))
                     {
                         if (_root.Priority == _root.NodoLeft.Priority)
@@ -344,7 +341,6 @@ namespace Huffman
                             Order(_root.NodoLeft);
                         }
                     }
-                    //LISTO
                     else if ((_root.Priority < _root.NodoLeft.Priority) && (_root.Priority >= _root.NodoRight.Priority))
                     {
                         if (_root.Priority == _root.NodoRight.Priority)
@@ -382,7 +378,6 @@ namespace Huffman
                         }
                     }
                 }
-                //LISTO
                 else if ((_root.NodoRight != null && _root.NodoLeft == null))
                 {
                     if (_root.Priority >= _root.NodoRight.Priority)
@@ -422,7 +417,6 @@ namespace Huffman
                         }
                     }
                 }
-                //LISTO
                 else if ((_root.NodoLeft != null && _root.NodoRight == null))
                 {
                     if (_root.Priority >= _root.NodoLeft.Priority)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-
+﻿using System.Collections.Generic;
 namespace Huffman
 {
     public class HuffTree
@@ -267,17 +263,11 @@ namespace Huffman
                                 NodeHuffTree valueMatchOnList1 = listAux[posMatchFirstNewSon];
                                 NodeHuffTree valueMatchOnList2 = listAux[posMatchSecondNewSon];
                                 listAux.RemoveAt(posMatchFirstNewSon);
-                                //Se valida si no es mayor la posición, ya que se habrá eliminado:
-                                //
-                                //NUEVO
-                                //
+                                //Se valida si no es mayor la posición, ya que se habrá eliminado:                        
                                 if (posMatchSecondNewSon > posMatchFirstNewSon)
                                 {
                                     posMatchSecondNewSon -= 1;
                                 }
-                                //
-                                //NUEVO
-                                //
                                 listAux.RemoveAt(posMatchSecondNewSon);
                                 //Se valida en qué posición van (izquierda, derecha):
                                 if (valueMatchOnList2.probability > valueMatchOnList1.probability)
